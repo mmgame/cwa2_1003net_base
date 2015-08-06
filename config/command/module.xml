@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- 账号注册 -->
+	<bean id="userRegisterRevHandler" class="com.cwa.handler.server.UserRegisterRevHandler" />
+	<!-- 角色登录 -->
+	<bean id="userLoginRevHandler" class="com.cwa.handler.server.UserLoginRevHandler" />
+	<!-- 角色登出 -->
+	<bean id="userLogoutRevHandler" class="com.cwa.handler.server.UserLogoutRevHandler" />
+
+
+    <bean id="userRegisterRevMessageConfig" class="com.cwa.message.MessageConfig">
+		<property name="commonId" value="100001" />
+		<property name="message" value="com.cwa.message.test.UserMessage$UserRegisterRevMessage" />
+		<property name="messageHandler" ref="userRegisterRevHandler" />
+	</bean>
+	
+	  <bean id="userRegisterSendMessageConfig" class="com.cwa.message.MessageConfig">
+		<property name="commonId" value="100002" />
+		<property name="message" value="com.cwa.message.test.UserMessage$UserRegisterSendMessage" />
+	</bean>
+
+	<bean id="userLoginRevMessageConfig" class="com.cwa.message.MessageConfig">
+		<property name="commonId" value="100003" />
+		<property name="message" value="com.cwa.message.test.UserMessage$UserLoginRevMessage" />
+		<property name="messageHandler" ref="userLoginRevHandler" />
+	</bean>
+
+	<bean id="userLoginSendMessageConfig" class="com.cwa.message.MessageConfig">
+		<property name="commonId" value="100004" />
+		<property name="message" value="com.cwa.message.test.UserMessage$UserLoginSendMessage" />
+	</bean>
+	
+	<bean id="userLogoutRevMessageConfig" class="com.cwa.message.MessageConfig">
+		<property name="commonId" value="100005" />
+		<property name="message" value="com.cwa.message.test.UserMessage$UserLogoutRevMessage" />
+		<property name="messageHandler" ref="userLogoutRevHandler" />
+	</bean>
+
+
+
+	<bean id="protohandler" class="com.cwa.message.ProBuffMessageHandler">
+		<property name="messageConfigs">
+			<list>
+				<ref bean="userRegisterSendMessageConfig" />
+				<ref bean="userRegisterRevMessageConfig" />
+				<ref bean="userLoginSendMessageConfig" />
+				<ref bean="userLoginRevMessageConfig" />
+				<ref bean="userLogoutRevMessageConfig" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

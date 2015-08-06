@@ -1,0 +1,6 @@
+compiler.compileProtoFiles=true
+compiler.enableProjectSettings=true
+compiler.javaCodeGenerationEnabled=true
+compiler.javaOutputDirectory=test/
+compiler.protocFilePath=E\:\\server\\proto\\protoc.exe
+eclipse.preferences.version=1

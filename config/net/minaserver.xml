@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="clientSendMessage" class="com.cwa.net.mina.message.MinaSendMessage">
+		<property name="configMessage" ref="protohandler" />
+	</bean>
+
+	<bean id="minaHandler" class="com.cwa.net.mina.handler.MinaHandler">
+		<property name="messageHandler" ref="protohandler" />
+		<property name="closeSessionHandlerList">
+			<list>
+				<ref bean="sessionCloseHandler" />
+			</list>
+		</property>
+		<property name="createSessionHandlerList">
+			<list>
+				<ref bean="sessionCreateHandler" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="serverLogger" class="org.apache.mina.filter.logging.LoggingFilter" />
+
+	<bean id="minaMessageType" class="com.cwa.net.mina.message.MinaMessageType" />
+
+	<!-- 协议解析\封装工具类 -->
+	<bean id="serverProtocolCodecFilter" class="org.apache.mina.filter.codec.ProtocolCodecFilter">
+		<constructor-arg>
+			<bean class="com.cwa.net.mina.filter.MessageCodecFactory">
+				<constructor-arg>
+					<bean class="com.cwa.net.mina.filter.MessageSendEncoder" />
+				</constructor-arg>
+				<constructor-arg>
+					<bean class="com.cwa.net.mina.filter.MessageReceiveDecoder">
+						<property name="maxPackSize" value="1024" />
+						<property name="messageType" ref="minaMessageType" />
+					</bean>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="serverExecutorFilter" class="org.apache.mina.filter.executor.ExecutorFilter">
+		<constructor-arg index="0" value="5" />
+		<constructor-arg index="1" value="10" />
+	</bean>
+
+	<bean id="heartBeatMessageFactory" class="com.cwa.net.mina.heartbeat.HeartBeatMessageFactory">
+		<property name="heartbeatId" value="100" />
+	</bean>
+	<bean id="heartBeatRequestTimeoutHandler"
+		class="com.cwa.net.mina.heartbeat.HeartBeatRequestTimeoutHandler" />
+	<!-- IdleStatus.BOTH_IDLE的对象常量 -->
+	<bean id="org.apache.mina.core.session.IdleStatus.BOTH_IDLE"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+
+	<bean id="keepAliveFilter" class="org.apache.mina.filter.keepalive.KeepAliveFilter">
+		<constructor-arg index="0" ref="heartBeatMessageFactory" />
+		<constructor-arg index="1"
+			ref="org.apache.mina.core.session.IdleStatus.BOTH_IDLE" />
+		<constructor-arg index="2"
+			ref="heartBeatRequestTimeoutHandler" />
+		<!-- 是否回复 -->
+		<property name="forwardEvent" value="false" />
+		<!-- 回复频率 -->
+		<property name="requestInterval" value="30" />
+		<!-- 心跳超时 -->
+		<property name="requestTimeout" value="40" />
+	</bean>
+
+	<!-- 控制客户端请求服务器频率的过滤器,简易防止网络攻击 -->
+	<bean id="connectionThrottleFilter"
+		class="org.apache.mina.filter.firewall.ConnectionThrottleFilter">
+		<property name="allowedInterval" value="300" />
+	</bean>
+
+	<bean id="filters" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry key="protocolCodecFilter" value-ref="serverProtocolCodecFilter" />
+				<entry key="logger" value-ref="serverLogger" />
+				<entry key="heartbeat" value-ref="keepAliveFilter" />
+				<entry key="exceutor" value-ref="serverExecutorFilter" />
+			</map>
+		</constructor-arg>
+	</bean>
+	<!-- 游戏网络监听服务入口 -->
+	<bean id="mina" class="com.cwa.net.mina.MinaServer">
+		<property name="port" value="10001" />
+		<property name="gameHandler" ref="minaHandler" />
+		<property name="filters" ref="filters" />
+	</bean>
+</beans>

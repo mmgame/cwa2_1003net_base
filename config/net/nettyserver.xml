@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="clientSendMessage" class="com.cwa.net.netty.message.NettySendMessage">
+		<property name="configMessage" ref="protohandler" />
+	</bean>
+	<bean id="nettyHandler" class="com.cwa.net.netty.handler.NettyHandler">
+		<property name="messageHandler" ref="protohandler" />
+		<property name="sessionManager" ref="clientSendMessage" />
+		<property name="closeSessionHandlerList">
+			<list>
+				<ref bean="sessionCloseHandler" />
+			</list>
+		</property>
+		<property name="createSessionHandlerList">
+			<list>
+				<ref bean="sessionCreateHandler" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="nettyMessageType" class="com.cwa.net.netty.message.NettyMessageType" />
+
+
+	<!-- 游戏网络监听服务入口 -->
+	<bean id="netty" class="com.cwa.net.netty.NettyServer">
+		<property name="port" value="8088" />
+		<property name="threadNum" value="5" />
+		<property name="messageType" ref="nettyMessageType" />
+		<property name="protohandler" ref="protohandler" />
+		<property name="handler" ref="nettyHandler" />
+		<property name="readerIdleTimeSeconds" value="300" />
+		<property name="writerIdleTimeSeconds" value="300" />
+		<property name="allIdleTimeSeconds" value="600" />
+	</bean>
+</beans>

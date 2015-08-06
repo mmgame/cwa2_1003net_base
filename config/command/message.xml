@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+
+	
+	<!-- session创建处理 -->
+	<bean id="sessionCreateHandler" class="com.cwa.net.SessionCreateHandler" />
+	<!-- session关闭处理 -->
+	<bean id="sessionCloseHandler" class="com.cwa.net.SessionCloseHandler" />
+</beans>
